@@ -6,7 +6,7 @@
 
 #define TARGET "../targets/target1"
 
-#define NOP_margin 75
+#define NOP_margin 32
 
 int
 main ( int argc, char * argv[] )
@@ -46,6 +46,7 @@ main ( int argc, char * argv[] )
 		strcat(sploit_str, target_addr);
 	}
 
+	// Append EOF character
 	sploit_str[124] = 0;
 
 	args[0] = TARGET;
