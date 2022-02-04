@@ -8,4 +8,6 @@ static char shellcode[] =
 
 static int shellcode_len = 45;
 
-static char nop[] = "\x90";
+static char nop[] = "\0x90";
+
+#define NOP 0x90
