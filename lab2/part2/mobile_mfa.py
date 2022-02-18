@@ -219,11 +219,49 @@ class BioConnect:
 
 	def getAuthenticatorStatus(self):
 
-		# >>> Add code here to call
-		#    .../v2/users/<userId>/authenicators/<authenticatorId>
-		# and process the response
+		global	hostname
 
-		return('')
+		url = 'https://%s/v2/users/%s/authenticators/%s' % \
+			( hostname, self.userId, self.authenticatorId )
+
+		headers = {
+			'Content-Type':		'application/json',
+			'accept':		'application/json',
+			'bcaccesskey':		self.bcaccesskey,
+			'bcentitykey':		self.bcentitykey,
+			'bctoken':		self.bctoken
+		}
+
+		# Send our GET request to the server
+		result = requests.get(url, headers=headers)
+
+		if result == False:
+			# Error: we did not receive an HTTP/200
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unable to get authenticator status")
+
+		try:
+			# Parse the JSON reply
+			reply = json.loads(result.content.decode('utf-8'))
+
+			# Extract the status for each form of authentication
+			self.authenticatiorStatus = reply.get("status","")
+			self.biometricModalitiesStatus = {
+				'face_status': 			reply.get("face_status",""), 
+				'voice_status': 		reply.get("voice_status",""), 
+				'fingerprint_status': 	reply.get("fingerprint_status",""),
+				'eye_status':			reply.get("eye_status","")
+			}
+
+		except ValueError:
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unexpected reply for authenticator status")
+
+		return('active' if ((self.authenticatiorStatus == 'active') and \
+			('enrolled' in self.biometricModalitiesStatus.values())) \
+			else 'inactive')
 
 
 	# ===== sendStepup: Pushes an authentication request to the mobile app
@@ -232,9 +270,44 @@ class BioConnect:
 		transactionId = '%d' % int(time.time()),
 		message='Login request'):
 
-		# >>> Add code here to call
-		#     .../v2/user_verifications
-		# to push an authentication request to the mobile device
+		global	hostname
+
+		url = 'https://%s/v2/user_verifications' % hostname
+
+		headers = {
+			'Content-Type':		'application/json',
+			'accept':		'application/json',
+			'bcaccesskey':		self.bcaccesskey,
+			'bcentitykey':		self.bcentitykey,
+			'bctoken':		self.bctoken
+		}
+
+		params = {
+			'user_uuid':		self.userId,
+			'transaction_id':	transactionId,
+			'message':			message
+		}
+
+		# Send our POST request to the server
+		result = requests.post(url, headers=headers, params=params)
+
+		if result == False:
+			# Error: we did not receive an HTTP/200
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unable to get user verification")
+
+		try:
+			# Parse the JSON reply
+			reply = json.loads(result.content.decode('utf-8'))
+
+			# Extract the status for user verification
+			self.verificationId = reply.get("user_verification","")['uuid']
+
+		except ValueError:
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unexpected reply for user verification")
 
 		pass
 
@@ -242,11 +315,41 @@ class BioConnect:
 
 	def getStepupStatus(self):
 
-		# >>> Add code here to call
-		#     .../v2/user_verifications/<verificationId>
-		# to poll for the current status of the verification
+		global	hostname
 
-		return('declined')
+		url = 'https://%s/v2/user_verifications/%s' % \
+			( hostname, self.verificationId )
+
+		headers = {
+			'Content-Type':		'application/json',
+			'accept':		'application/json',
+			'bcaccesskey':		self.bcaccesskey,
+			'bcentitykey':		self.bcentitykey,
+			'bctoken':		self.bctoken
+		}
+
+		# Send our GET request to the server
+		result = requests.get(url, headers=headers)
+
+		if result == False:
+			# Error: we did not receive an HTTP/200
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unable to get verification request")
+
+		try:
+			# Parse the JSON reply
+			reply = json.loads(result.content.decode('utf-8'))
+
+			# Extract the status for verification request
+			self.setupStatus = reply.get("user_verification","")['status']
+
+		except ValueError:
+			print(headers)
+			print(result.content)
+			sys.exit("Error: unexpected reply for steup status")
+
+		return(self.setupStatus)
 
 
 	# ===== deleteUser: Deletes the user and mobile phone entries
