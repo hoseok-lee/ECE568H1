@@ -1,0 +1,15 @@
+#webgoat
+#Sat Mar 19 17:14:01 EDT 2022
+phishingUsername=hello
+Phishing\ with\ XSS.viewedLessonPlan=false
+Phishing\ with\ XSS.completed=true
+Phishing\ with\ XSS.maxHintLevel=0
+Phishing\ with\ XSS.numVisits=67
+user=hello
+phishingPassword=world
+Phishing\ with\ XSS.viewedParameters=false
+Phishing\ with\ XSS.viewedSource=false
+Phishing\ with\ XSS.viewedHtml=false
+password=world
+Phishing\ with\ XSS.viewedCookies=false
+PROPERTY=yes
