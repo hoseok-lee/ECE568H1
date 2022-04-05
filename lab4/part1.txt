@@ -1,0 +1,5 @@
+128.100.8.2 (port 53)
+ns1.d-zone.ca:128.100.100.129
+ns2.d-zone.ca:128.100.72.168
+utoronto-ca.mail.protection.outlook.com:104.47.75.164
+utoronto-ca.mail.protection.outlook.com:104.47.60.36
