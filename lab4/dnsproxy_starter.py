@@ -18,3 +18,20 @@ dns_port = args.dns_port
 # Flag to indicate if the proxy should spoof responses
 SPOOF = args.spoof_response
 
+PROXY_IP = "127.0.0.1"
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM )
+server.bind((PROXY_IP, port))
+
+# Main reroute loop
+while True:
+    # Read some arbitrary number of bytes i.e. 1024
+	initial_data, (initial_addr, initial_port) = server.recvfrom(1024)
+    # DNS address is the proxy server IP address
+	server.sendto(initial_data, (PROXY_IP, dns_port))
+
+    # Response data
+	response_data, (response_addr, response_port) = server.recvfrom(1024)
+
+    # Send DNS packet
+    dns_pack = DNS(response_data)
+    server.sendto(bytes(dns_pack), (initial_addr, initial_port))
