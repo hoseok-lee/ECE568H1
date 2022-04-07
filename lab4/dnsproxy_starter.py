@@ -32,6 +32,6 @@ while True:
     # Response data
 	response_data, (response_addr, response_port) = server.recvfrom(1024)
 
-    # Send DNS packet
-    dns_pack = DNS(response_data)
-    server.sendto(bytes(dns_pack), (initial_addr, initial_port))
+	# Send DNS packet
+	dns_pack = DNS(response_data)
+	server.sendto(bytes(dns_pack), (initial_addr, initial_port))
