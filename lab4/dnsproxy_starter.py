@@ -20,7 +20,7 @@ SPOOF = args.spoof_response
 
 PROXY_IP = "127.0.0.1"
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((PROXY_IP, port))
 
 # Main reroute loop
